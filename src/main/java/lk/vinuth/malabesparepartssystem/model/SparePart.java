@@ -11,41 +11,48 @@ import java.time.LocalDate;
  */
 public class SparePart {
 
-    // A unique code used to identify the spare part, for example P001.
+    // A unique code used to identify the spare part.
     private String partCode;
 
     // The name or description of the spare part.
     private String partName;
 
-    // The manufacturer or brand. This may be empty in the legacy file.
+    // The manufacturer or brand.
     private String brand;
 
-    // The selling price of one unit of the spare part.
+    // Selling price of one unit.
     private double price;
 
-    // The number of units currently available in stock.
+    // Number of items available.
     private int quantity;
 
-    // The type of part, such as Engine, Electrical, Brakes or Bodywork.
+    // Category such as Engine, Electrical or Bodywork.
     private String category;
 
-    // The date associated with the inventory record.
+    // Date when the item was added.
     private LocalDate dateAdded;
 
-    // The optional image filename stored in the legacy inventory file.
+    // Image filename associated with this spare part.
     private String imageFileName;
 
     /**
-     * Creates a new SparePart object using all required inventory values.
+     * Creates an empty SparePart object.
+     * Values can later be assigned using setter methods.
+     */
+    public SparePart() {
+    }
+
+    /**
+     * Creates a new SparePart object with all required information.
      *
-     * @param partCode     unique part code
-     * @param partName     name of the part
-     * @param brand        manufacturer or brand
-     * @param price        price of one unit
-     * @param quantity     available stock quantity
-     * @param category     inventory category
-     * @param dateAdded    date stored for the item
-     * @param imageFileName optional image filename
+     * @param partCode unique code
+     * @param partName name of the spare part
+     * @param brand manufacturer or brand
+     * @param price selling price
+     * @param quantity stock quantity
+     * @param category inventory category
+     * @param dateAdded date stored
+     * @param imageFileName image filename
      */
     public SparePart(
             String partCode,
@@ -55,8 +62,8 @@ public class SparePart {
             int quantity,
             String category,
             LocalDate dateAdded,
-            String imageFileName
-    ) {
+            String imageFileName) {
+
         this.partCode = partCode;
         this.partName = partName;
         this.brand = brand;
@@ -66,107 +73,110 @@ public class SparePart {
         this.dateAdded = dateAdded;
         this.imageFileName = imageFileName;
     }
+    // ==========================
+    // Getters
+    // ==========================
 
-    // Returns the unique code of this spare part.
     public String getPartCode() {
         return partCode;
     }
 
-    // Changes the unique code of this spare part.
-    public void setPartCode(String partCode) {
-        this.partCode = partCode;
-    }
-
-    // Returns the part name.
     public String getPartName() {
         return partName;
     }
 
-    // Changes the part name.
-    public void setPartName(String partName) {
-        this.partName = partName;
-    }
-
-    // Returns the brand.
     public String getBrand() {
         return brand;
     }
 
-    // Changes the brand.
-    public void setBrand(String brand) {
-        this.brand = brand;
-    }
-
-    // Returns the price of one unit.
     public double getPrice() {
         return price;
     }
 
-    // Changes the price of one unit.
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    // Returns the current stock quantity.
     public int getQuantity() {
         return quantity;
     }
 
-    // Changes the current stock quantity.
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    // Returns the inventory category.
     public String getCategory() {
         return category;
     }
 
-    // Changes the inventory category.
-    public void setCategory(String category) {
-        this.category = category;
-    }
-
-    // Returns the date stored for the item.
     public LocalDate getDateAdded() {
         return dateAdded;
     }
 
-    // Changes the date stored for the item.
+    public String getImageFileName() {
+        return imageFileName;
+    }
+    // ==========================
+    // Setters
+    // ==========================
+
+    public void setPartCode(String partCode) {
+        this.partCode = partCode;
+    }
+
+    public void setPartName(String partName) {
+        this.partName = partName;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
     public void setDateAdded(LocalDate dateAdded) {
         this.dateAdded = dateAdded;
     }
 
-    // Returns the optional image filename.
-    public String getImageFileName() {
-        return imageFileName;
-    }
-
-    // Changes the optional image filename.
     public void setImageFileName(String imageFileName) {
         this.imageFileName = imageFileName;
     }
 
     /**
-     * Calculates the total value of the available stock for this item.
+     * Calculates the total value of the stock for this spare part.
      *
-     * Example:
-     * price = 4500 and quantity = 15
-     * total value = 4500 × 15
-     *
-     * @return total stock value for this item
+     * @return stock value
      */
     public double calculateStockValue() {
         return price * quantity;
     }
 
     /**
-     * Checks whether this item is below the selected low-stock threshold.
+     * Checks whether the stock quantity is below a specified limit.
      *
      * @param threshold minimum acceptable quantity
-     * @return true when the quantity is below the threshold
+     * @return true if stock is low, otherwise false
      */
     public boolean isLowStock(int threshold) {
         return quantity < threshold;
+    }
+
+    /**
+     * Returns the spare part as readable text.
+     */
+    @Override
+    public String toString() {
+        return "SparePart{" +
+                "partCode='" + partCode + '\'' +
+                ", partName='" + partName + '\'' +
+                ", brand='" + brand + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", category='" + category + '\'' +
+                ", dateAdded=" + dateAdded +
+                ", imageFileName='" + imageFileName + '\'' +
+                '}';
     }
 }
