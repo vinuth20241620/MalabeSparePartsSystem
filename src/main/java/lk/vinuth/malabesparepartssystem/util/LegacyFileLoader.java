@@ -100,7 +100,8 @@ public class LegacyFileLoader {
              */
             String cleanedLine = line
                     .replace('|', ',')
-                    .replace(';', ',');
+                    .replace(';', ',')
+                    .replace(':', ',');
 
             /*
              * Split the line into a maximum of eight sections.
