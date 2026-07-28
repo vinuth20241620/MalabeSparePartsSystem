@@ -15,6 +15,7 @@ import lk.vinuth.malabesparepartssystem.service.InventoryService;
 import lk.vinuth.malabesparepartssystem.controller.PartFormController;
 import lk.vinuth.malabesparepartssystem.controller.PointOfSaleController;
 import lk.vinuth.malabesparepartssystem.controller.DealerController;
+import lk.vinuth.malabesparepartssystem.util.AuditLogger;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -31,23 +32,14 @@ import javafx.stage.Stage;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
-/**
- * Controls the main inventory JavaFX screen.
- *
- * This class connects the controls in hello-view.fxml
- * with the inventory data and application services.
- */
 public class HelloController {
 
-    // Search text entered by the user.
     @FXML
     private TextField searchField;
 
-    // Table used to display every spare part.
     @FXML
     private TableView<SparePart> inventoryTable;
 
-    // Individual columns inside the inventory table.
     @FXML
     private TableColumn<SparePart, String> partCodeColumn;
 
@@ -69,7 +61,6 @@ public class HelloController {
     @FXML
     private TableColumn<SparePart, LocalDate> dateAddedColumn;
 
-    // Labels displaying inventory totals and user feedback.
     @FXML
     private Label totalPartsLabel;
 
@@ -79,40 +70,25 @@ public class HelloController {
     @FXML
     private Label statusLabel;
 
-    // Central service used to load the legacy files.
     private ApplicationDataService applicationDataService;
 
-    // Service used to access inventory operations.
     private InventoryService inventoryService;
 
-    /**
-     * Runs automatically after the FXML file has loaded.
-     */
     @FXML
     private void initialize() {
 
-        // Create the central application data service.
         applicationDataService = new ApplicationDataService();
 
-        // Load inventory and dealer records from the text files.
         applicationDataService.loadLegacyData();
 
-        // Get the inventory service containing the loaded parts.
         inventoryService = applicationDataService.getInventoryService();
 
-        // Connect each table column to a SparePart property.
         configureTableColumns();
 
-        // Display the loaded inventory records.
         refreshInventoryTable();
 
-        // Show confirmation to the user.
         statusLabel.setText("Legacy inventory loaded successfully.");
     }
-    /**
-     * Connects each table column to the matching
-     * getter method inside the SparePart class.
-     */
     private void configureTableColumns() {
 
         partCodeColumn.setCellValueFactory(
@@ -144,31 +120,21 @@ public class HelloController {
         );
     }
 
-    /**
-     * Reloads all inventory records into the table
-     * and refreshes the summary labels.
-     */
     private void refreshInventoryTable() {
 
-        // Retrieve all spare parts from the service.
         List<SparePart> spareParts =
                 inventoryService.getAllSpareParts();
 
-        // Convert the ordinary List into a JavaFX ObservableList.
         ObservableList<SparePart> tableData =
                 FXCollections.observableArrayList(spareParts);
 
-        // Display the records inside the table.
         inventoryTable.setItems(tableData);
-        // Force JavaFX to redraw cells after an existing object is updated.
         inventoryTable.refresh();
 
-        // Update the total number of part records.
         totalPartsLabel.setText(
                 String.valueOf(inventoryService.getTotalParts())
         );
 
-        // Update the complete inventory monetary value.
         totalValueLabel.setText(
                 String.format(
                         "Rs. %.2f",
@@ -177,20 +143,11 @@ public class HelloController {
         );
     }
 
-    /**
-     * Searches the inventory using the text entered
-     * in the search field.
-     *
-     * The search manually checks the part code,
-     * part name, brand and category.
-     */
     @FXML
     private void onSearchButtonClick() {
 
-        // Read and clean the user's search text.
         String keyword = searchField.getText().trim();
 
-        // Display all records when no keyword was entered.
         if (keyword.isEmpty()) {
             refreshInventoryTable();
             statusLabel.setText(
@@ -199,14 +156,11 @@ public class HelloController {
             return;
         }
 
-        // Convert the keyword to lowercase for case-insensitive searching.
         String lowerKeyword = keyword.toLowerCase();
 
-        // Create an empty list for matching results.
         ObservableList<SparePart> matchingParts =
                 FXCollections.observableArrayList();
 
-        // Check every spare part manually.
         for (SparePart sparePart
                 : inventoryService.getAllSpareParts()) {
 
@@ -234,7 +188,6 @@ public class HelloController {
                             lowerKeyword
                     );
 
-            // Add the part when at least one field matches.
             if (codeMatches
                     || nameMatches
                     || brandMatches
@@ -244,30 +197,19 @@ public class HelloController {
             }
         }
 
-        // Display only the matching records.
         inventoryTable.setItems(matchingParts);
 
-        // Provide clear feedback to the user.
         statusLabel.setText(
                 matchingParts.size()
                         + " matching inventory record(s) found."
         );
     }
 
-    /**
-     * Safely checks whether text contains a keyword,
-     * without considering uppercase and lowercase letters.
-     *
-     * @param text original field value
-     * @param lowerKeyword lowercase search keyword
-     * @return true if the field contains the keyword
-     */
     private boolean containsIgnoreCase(
             String text,
             String lowerKeyword
     ) {
 
-        // A missing optional field cannot match.
         if (text == null) {
             return false;
         }
@@ -275,9 +217,6 @@ public class HelloController {
         return text.toLowerCase().contains(lowerKeyword);
     }
 
-    /**
-     * Clears the search box and displays all records again.
-     */
     @FXML
     private void onClearSearchButtonClick() {
 
@@ -289,16 +228,10 @@ public class HelloController {
         );
     }
 
-    /**
-     * Opens the Add Part form in a separate window.
-     */
     @FXML
     private void onAddPartButtonClick() {
 
         try {
-            /*
-             * Load the Add Part form from the FXML file.
-             */
             FXMLLoader loader = new FXMLLoader(
                     HelloApplication.class.getResource(
                             "part-form.fxml"
@@ -307,23 +240,13 @@ public class HelloController {
 
             Parent formRoot = loader.load();
 
-            /*
-             * Get the controller created for part-form.fxml.
-             */
             PartFormController formController =
                     loader.getController();
 
-            /*
-             * Give the form access to the same inventory service
-             * used by the main screen.
-             */
             formController.setInventoryService(
                     inventoryService
             );
 
-            /*
-             * Refresh the main table after a part is added.
-             */
             formController.setOnPartSaved(() -> {
 
                 refreshInventoryTable();
@@ -333,18 +256,11 @@ public class HelloController {
                 );
             });
 
-            /*
-             * Create a new window for the form.
-             */
             Stage formStage = new Stage();
 
             formStage.setTitle("Add Spare Part");
             formStage.setScene(new Scene(formRoot));
 
-            /*
-             * Prevent the user from using the main window
-             * until this form is closed.
-             */
             formStage.initModality(Modality.APPLICATION_MODAL);
 
             formStage.setResizable(false);
@@ -359,18 +275,12 @@ public class HelloController {
             exception.printStackTrace();
         }
     }
-    /**
-     * Deletes the selected spare part after asking
-     * the user to confirm the action.
-     */
     @FXML
     private void onDeletePartButtonClick() {
 
-        // Get the row currently selected in the table.
         SparePart selectedPart =
                 inventoryTable.getSelectionModel().getSelectedItem();
 
-        // Stop if the user did not select a row.
         if (selectedPart == null) {
             statusLabel.setText(
                     "Please select a spare part to delete."
@@ -378,10 +288,6 @@ public class HelloController {
             return;
         }
 
-        /*
-         * Create a confirmation dialog so a record
-         * cannot be deleted accidentally.
-         */
         Alert confirmationAlert =
                 new Alert(Alert.AlertType.CONFIRMATION);
 
@@ -396,15 +302,10 @@ public class HelloController {
                 "This action cannot be undone."
         );
 
-        /*
-         * Display the dialog and wait for the user
-         * to choose OK or Cancel.
-         */
         ButtonType selectedButton =
                 confirmationAlert.showAndWait()
                         .orElse(ButtonType.CANCEL);
 
-        // Stop when the user presses Cancel.
         if (selectedButton != ButtonType.OK) {
             statusLabel.setText(
                     "Delete operation cancelled."
@@ -412,9 +313,6 @@ public class HelloController {
             return;
         }
 
-        /*
-         * Ask InventoryService to remove the selected part.
-         */
         boolean deleted =
                 inventoryService.deleteSparePart(
                         selectedPart.getPartCode()
@@ -427,7 +325,12 @@ public class HelloController {
             return;
         }
 
-        // Reload the table and summary values.
+        AuditLogger.logAction(
+                "DELETE_PART",
+                selectedPart.getPartCode(),
+                selectedPart.getQuantity()
+        );
+
         refreshInventoryTable();
 
         statusLabel.setText(
@@ -437,9 +340,6 @@ public class HelloController {
         );
     }
 
-    /**
-     * Reloads the complete inventory table.
-     */
     @FXML
     private void onRefreshButtonClick() {
 
@@ -450,13 +350,9 @@ public class HelloController {
                 "Inventory table refreshed."
         );
     }
-    /**
-     * Opens the selected spare part in the edit form.
-     */
     @FXML
     private void onUpdatePartButtonClick() {
 
-        // Get the selected row.
         SparePart selectedPart = inventoryTable.getSelectionModel().getSelectedItem();
 
         if (selectedPart == null) {
@@ -497,42 +393,30 @@ public class HelloController {
     @FXML
     private void onLowStockButtonClick() {
 
-        // Store all parts that have five or fewer items in stock.
         ObservableList<SparePart> lowStockParts =
                 FXCollections.observableArrayList();
 
-        // Check every spare part currently stored.
         for (SparePart part
                 : inventoryService.getAllSpareParts()) {
 
-            // Treat quantity 5 or below as low stock.
             if (part.getQuantity() <= 5) {
                 lowStockParts.add(part);
             }
         }
 
-        // Display only the low-stock records.
         inventoryTable.setItems(lowStockParts);
 
-        // Force the table to redraw.
         inventoryTable.refresh();
 
-        // Show how many low-stock records were found.
         statusLabel.setText(
                 lowStockParts.size()
                         + " low stock part(s) found."
         );
     }
-    /**
-     * Opens the dealer-management window.
-     */
     @FXML
     private void onDealersButtonClick() {
 
         try {
-            /*
-             * Load the dealer table interface.
-             */
             FXMLLoader loader = new FXMLLoader(
                     HelloApplication.class.getResource(
                             "dealer-view.fxml"
@@ -541,23 +425,13 @@ public class HelloController {
 
             Parent dealerRoot = loader.load();
 
-            /*
-             * Get the controller connected to dealer-view.fxml.
-             */
             DealerController dealerController =
                     loader.getController();
 
-            /*
-             * Give the dealer window access to the same
-             * dealer service containing the loaded records.
-             */
             dealerController.setDealerService(
                     applicationDataService.getDealerService()
             );
 
-            /*
-             * Create and display the dealer window.
-             */
             Stage dealerStage = new Stage();
 
             dealerStage.setTitle("Dealer Management");
@@ -582,9 +456,6 @@ public class HelloController {
     private void onPointOfSaleButtonClick() {
 
         try {
-            /*
-             * Load the Point of Sale interface.
-             */
             FXMLLoader loader = new FXMLLoader(
                     HelloApplication.class.getResource(
                             "point-of-sale.fxml"
@@ -593,23 +464,13 @@ public class HelloController {
 
             Parent posRoot = loader.load();
 
-            /*
-             * Get the controller connected to the FXML file.
-             */
             PointOfSaleController posController =
                     loader.getController();
 
-            /*
-             * Give the POS window access to the same
-             * inventory service used by the main screen.
-             */
             posController.setInventoryService(
                     inventoryService
             );
 
-            /*
-             * Refresh the main table after a sale changes stock.
-             */
             posController.setOnSaleCompleted(() -> {
 
                 refreshInventoryTable();
@@ -619,9 +480,6 @@ public class HelloController {
                 );
             });
 
-            /*
-             * Create and display the Point of Sale window.
-             */
             Stage posStage = new Stage();
 
             posStage.setTitle("Point of Sale");
@@ -639,18 +497,12 @@ public class HelloController {
             exception.printStackTrace();
         }
     }
-    /**
-     * Calculates and displays a summary report
-     * using the current inventory records.
-     */
     @FXML
     private void onReportsButtonClick() {
 
-        // Retrieve every spare part currently stored.
         List<SparePart> spareParts =
                 inventoryService.getAllSpareParts();
 
-        // Stop safely if the inventory is empty.
         if (spareParts.isEmpty()) {
 
             Alert emptyAlert =
@@ -671,29 +523,20 @@ public class HelloController {
 
         double totalPrice = 0.0;
 
-        // Start with the first part as the most expensive.
         SparePart mostExpensivePart = spareParts.get(0);
 
-        /*
-         * Manually visit every part and calculate
-         * the required report information.
-         */
         for (SparePart sparePart : spareParts) {
 
-            // Count quantities of five or below as low stock.
             if (sparePart.getQuantity() <= 5) {
                 lowStockCount++;
             }
 
-            // Count records with no remaining stock.
             if (sparePart.getQuantity() == 0) {
                 outOfStockCount++;
             }
 
-            // Add the unit price for average-price calculation.
             totalPrice += sparePart.getPrice();
 
-            // Check whether this is the most expensive part.
             if (sparePart.getPrice()
                     > mostExpensivePart.getPrice()) {
 
@@ -701,17 +544,12 @@ public class HelloController {
             }
         }
 
-        // Calculate the average unit price.
         double averagePrice =
                 totalPrice / spareParts.size();
 
-        // Get the complete monetary value of all stock.
         double inventoryValue =
                 inventoryService.calculateTotalInventoryValue();
 
-        /*
-         * Build the report text shown in the dialog.
-         */
         String reportText =
                 "Total Parts: "
                         + spareParts.size()
@@ -740,7 +578,6 @@ public class HelloController {
                         + "Average Unit Price: Rs. "
                         + String.format("%.2f", averagePrice);
 
-        // Display the completed report.
         Alert reportAlert =
                 new Alert(Alert.AlertType.INFORMATION);
 
