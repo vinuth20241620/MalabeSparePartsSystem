@@ -44,7 +44,8 @@
 
                 <Button text="Dealers"/>
 
-                <Button text="Low Stock"/>
+                <Button text="Low Stock"
+                        onAction="#onLowStockButtonClick"/>
 
                 <Button text="Point of Sale"/>
 

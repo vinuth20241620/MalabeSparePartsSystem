@@ -492,5 +492,34 @@ public class HelloController {
             statusLabel.setText("Could not open the Update Part form.");
         }
     }
+    @FXML
+    private void onLowStockButtonClick() {
+
+        // Store all parts that have five or fewer items in stock.
+        ObservableList<SparePart> lowStockParts =
+                FXCollections.observableArrayList();
+
+        // Check every spare part currently stored.
+        for (SparePart part
+                : inventoryService.getAllSpareParts()) {
+
+            // Treat quantity 5 or below as low stock.
+            if (part.getQuantity() <= 5) {
+                lowStockParts.add(part);
+            }
+        }
+
+        // Display only the low-stock records.
+        inventoryTable.setItems(lowStockParts);
+
+        // Force the table to redraw.
+        inventoryTable.refresh();
+
+        // Show how many low-stock records were found.
+        statusLabel.setText(
+                lowStockParts.size()
+                        + " low stock part(s) found."
+        );
+    }
 
 }
