@@ -14,6 +14,7 @@ import lk.vinuth.malabesparepartssystem.service.ApplicationDataService;
 import lk.vinuth.malabesparepartssystem.service.InventoryService;
 import lk.vinuth.malabesparepartssystem.controller.PartFormController;
 import lk.vinuth.malabesparepartssystem.controller.PointOfSaleController;
+import lk.vinuth.malabesparepartssystem.controller.DealerController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -522,24 +523,57 @@ public class HelloController {
                         + " low stock part(s) found."
         );
     }
+    /**
+     * Opens the dealer-management window.
+     */
     @FXML
     private void onDealersButtonClick() {
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        try {
+            /*
+             * Load the dealer table interface.
+             */
+            FXMLLoader loader = new FXMLLoader(
+                    HelloApplication.class.getResource(
+                            "dealer-view.fxml"
+                    )
+            );
 
-        alert.setTitle("Dealers");
+            Parent dealerRoot = loader.load();
 
-        alert.setHeaderText("Registered Dealers");
+            /*
+             * Get the controller connected to dealer-view.fxml.
+             */
+            DealerController dealerController =
+                    loader.getController();
 
-        alert.setContentText(
-                "1. Bajaj Auto Parts\n" +
-                        "2. TVS Spare Centre\n" +
-                        "3. Piaggio Lanka\n" +
-                        "4. NGK Distributors\n" +
-                        "5. Local Parts Suppliers"
-        );
+            /*
+             * Give the dealer window access to the same
+             * dealer service containing the loaded records.
+             */
+            dealerController.setDealerService(
+                    applicationDataService.getDealerService()
+            );
 
-        alert.showAndWait();
+            /*
+             * Create and display the dealer window.
+             */
+            Stage dealerStage = new Stage();
+
+            dealerStage.setTitle("Dealer Management");
+            dealerStage.setScene(new Scene(dealerRoot));
+            dealerStage.initModality(Modality.APPLICATION_MODAL);
+            dealerStage.setResizable(false);
+            dealerStage.showAndWait();
+
+        } catch (IOException exception) {
+
+            statusLabel.setText(
+                    "Could not open the Dealer Management window."
+            );
+
+            exception.printStackTrace();
+        }
     }
     /**
      * Opens the Point of Sale window.
