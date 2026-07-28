@@ -1,0 +1,4 @@
+2026-07-28 18:59:41 | Action: ADD_PART | Item Code: P099 | Quantity: 5
+2026-07-28 19:00:11 | Action: UPDATE_PART | Item Code: P099 | Quantity: 6
+2026-07-28 19:00:34 | Action: CHECKOUT | Item Code: P099 | Quantity: 1
+2026-07-28 19:00:45 | Action: DELETE_PART | Item Code: P099 | Quantity: 5
