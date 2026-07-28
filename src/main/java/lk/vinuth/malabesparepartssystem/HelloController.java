@@ -13,6 +13,7 @@ import lk.vinuth.malabesparepartssystem.model.SparePart;
 import lk.vinuth.malabesparepartssystem.service.ApplicationDataService;
 import lk.vinuth.malabesparepartssystem.service.InventoryService;
 import lk.vinuth.malabesparepartssystem.controller.PartFormController;
+import lk.vinuth.malabesparepartssystem.controller.PointOfSaleController;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -540,21 +541,69 @@ public class HelloController {
 
         alert.showAndWait();
     }
+    /**
+     * Opens the Point of Sale window.
+     */
     @FXML
     private void onPointOfSaleButtonClick() {
 
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        try {
+            /*
+             * Load the Point of Sale interface.
+             */
+            FXMLLoader loader = new FXMLLoader(
+                    HelloApplication.class.getResource(
+                            "point-of-sale.fxml"
+                    )
+            );
 
-        alert.setTitle("Point of Sale");
+            Parent posRoot = loader.load();
 
-        alert.setHeaderText("Point of Sale");
+            /*
+             * Get the controller connected to the FXML file.
+             */
+            PointOfSaleController posController =
+                    loader.getController();
 
-        alert.setContentText(
-                "Point of Sale feature\n\n" +
-                        "This feature will be implemented in the next version."
-        );
+            /*
+             * Give the POS window access to the same
+             * inventory service used by the main screen.
+             */
+            posController.setInventoryService(
+                    inventoryService
+            );
 
-        alert.showAndWait();
+            /*
+             * Refresh the main table after a sale changes stock.
+             */
+            posController.setOnSaleCompleted(() -> {
+
+                refreshInventoryTable();
+
+                statusLabel.setText(
+                        "Sale completed and inventory stock updated."
+                );
+            });
+
+            /*
+             * Create and display the Point of Sale window.
+             */
+            Stage posStage = new Stage();
+
+            posStage.setTitle("Point of Sale");
+            posStage.setScene(new Scene(posRoot));
+            posStage.initModality(Modality.APPLICATION_MODAL);
+            posStage.setResizable(false);
+            posStage.showAndWait();
+
+        } catch (IOException exception) {
+
+            statusLabel.setText(
+                    "Could not open the Point of Sale window."
+            );
+
+            exception.printStackTrace();
+        }
     }
 
 }

@@ -166,17 +166,9 @@ public class SparePart {
     /**
      * Returns the spare part as readable text.
      */
+
     @Override
     public String toString() {
-        return "SparePart{" +
-                "partCode='" + partCode + '\'' +
-                ", partName='" + partName + '\'' +
-                ", brand='" + brand + '\'' +
-                ", price=" + price +
-                ", quantity=" + quantity +
-                ", category='" + category + '\'' +
-                ", dateAdded=" + dateAdded +
-                ", imageFileName='" + imageFileName + '\'' +
-                '}';
+        return partName + " (" + partCode + ")";
     }
 }
