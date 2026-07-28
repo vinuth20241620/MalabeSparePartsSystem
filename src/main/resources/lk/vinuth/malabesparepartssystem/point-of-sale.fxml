@@ -23,22 +23,18 @@
                 left="20.0"/>
     </padding>
 
-    <!-- Main heading for the Point of Sale window. -->
     <Label text="Point of Sale"
            style="-fx-font-size: 24px;
                   -fx-font-weight: bold;
                   -fx-text-fill: #263238;"/>
 
-    <!-- Short instruction for the user. -->
     <Label text="Select a spare part, enter the quantity and complete the sale."
            wrapText="true"
            style="-fx-text-fill: #546e7a;"/>
 
-    <!-- Form controls arranged in rows and columns. -->
     <GridPane hgap="15.0"
               vgap="14.0">
 
-        <!-- Spare part selector. -->
         <Label text="Spare Part"
                GridPane.columnIndex="0"
                GridPane.rowIndex="0"/>
@@ -50,7 +46,6 @@
                   GridPane.columnIndex="1"
                   GridPane.rowIndex="0"/>
 
-        <!-- Unit price display. -->
         <Label text="Unit Price"
                GridPane.columnIndex="0"
                GridPane.rowIndex="1"/>
@@ -61,7 +56,6 @@
                GridPane.columnIndex="1"
                GridPane.rowIndex="1"/>
 
-        <!-- Available stock display. -->
         <Label text="Available Stock"
                GridPane.columnIndex="0"
                GridPane.rowIndex="2"/>
@@ -72,7 +66,6 @@
                GridPane.columnIndex="1"
                GridPane.rowIndex="2"/>
 
-        <!-- Quantity input. -->
         <Label text="Sale Quantity"
                GridPane.columnIndex="0"
                GridPane.rowIndex="3"/>
@@ -82,7 +75,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="3"/>
 
-        <!-- Calculated total display. -->
         <Label text="Sale Total"
                GridPane.columnIndex="0"
                GridPane.rowIndex="4"/>
@@ -97,7 +89,6 @@
 
     </GridPane>
 
-    <!-- Action buttons. -->
     <HBox spacing="10.0">
 
         <Button text="Calculate Total"
@@ -116,7 +107,6 @@
 
     </HBox>
 
-    <!-- Validation and success message area. -->
     <Label fx:id="posStatusLabel"
            text=""
            wrapText="true"

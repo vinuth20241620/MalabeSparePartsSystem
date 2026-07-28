@@ -22,13 +22,11 @@
                 left="20.0"/>
     </padding>
 
-    <!-- Main heading for the dealer window. -->
     <Label text="Dealer Management"
            style="-fx-font-size: 24px;
                   -fx-font-weight: bold;
                   -fx-text-fill: #263238;"/>
 
-    <!-- Main dealer table. -->
     <TableView fx:id="dealerTable"
                VBox.vgrow="ALWAYS">
 
@@ -56,7 +54,6 @@
 
     </TableView>
 
-    <!-- Dealer summary and action controls. -->
     <HBox spacing="12.0">
 
         <Button text="Refresh"
@@ -71,7 +68,6 @@
 
     </HBox>
 
-    <!-- Displays status messages. -->
     <Label fx:id="dealerStatusLabel"
            text=""
            wrapText="true"

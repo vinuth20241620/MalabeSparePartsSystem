@@ -24,31 +24,25 @@
                 left="20.0"/>
     </padding>
 
-    <!-- Main heading displayed at the top of the form. -->
     <Label text="Add New Spare Part"
            style="-fx-font-size: 23px;
                   -fx-font-weight: bold;
                   -fx-text-fill: #263238;"/>
 
-    <!-- Short explanation for the user. -->
     <Label text="Enter the spare-part information below. Fields marked with * are required."
            wrapText="true"
            style="-fx-text-fill: #546e7a;"/>
 
-    <!-- GridPane keeps labels and input fields neatly aligned. -->
     <GridPane hgap="15.0"
               vgap="14.0">
 
         <columnConstraints>
-            <!-- First column contains the field labels. -->
             <ColumnConstraints minWidth="135.0"
                                prefWidth="135.0"/>
 
-            <!-- Second column contains the input controls. -->
             <ColumnConstraints hgrow="ALWAYS"/>
         </columnConstraints>
 
-        <!-- Part code field. -->
         <Label text="Part Code *"
                GridPane.columnIndex="0"
                GridPane.rowIndex="0"/>
@@ -58,7 +52,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="0"/>
 
-        <!-- Part name field. -->
         <Label text="Part Name *"
                GridPane.columnIndex="0"
                GridPane.rowIndex="1"/>
@@ -68,7 +61,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="1"/>
 
-        <!-- Optional brand field. -->
         <Label text="Brand"
                GridPane.columnIndex="0"
                GridPane.rowIndex="2"/>
@@ -78,7 +70,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="2"/>
 
-        <!-- Price field. -->
         <Label text="Price *"
                GridPane.columnIndex="0"
                GridPane.rowIndex="3"/>
@@ -88,7 +79,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="3"/>
 
-        <!-- Quantity field. -->
         <Label text="Quantity *"
                GridPane.columnIndex="0"
                GridPane.rowIndex="4"/>
@@ -98,7 +88,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="4"/>
 
-        <!-- Category field. -->
         <Label text="Category *"
                GridPane.columnIndex="0"
                GridPane.rowIndex="5"/>
@@ -108,7 +97,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="5"/>
 
-        <!-- Date field. -->
         <Label text="Date Added *"
                GridPane.columnIndex="0"
                GridPane.rowIndex="6"/>
@@ -118,7 +106,6 @@
                     GridPane.columnIndex="1"
                     GridPane.rowIndex="6"/>
 
-        <!-- Optional image filename field. -->
         <Label text="Image Filename"
                GridPane.columnIndex="0"
                GridPane.rowIndex="7"/>
@@ -128,7 +115,6 @@
                    GridPane.columnIndex="1"
                    GridPane.rowIndex="7"/>
 
-        <!-- Buttons used to save or clear the form. -->
         <HBox spacing="10.0"
               GridPane.columnIndex="1"
               GridPane.rowIndex="8">
@@ -145,7 +131,6 @@
 
     </GridPane>
 
-    <!-- Displays validation errors and success messages. -->
     <Label fx:id="formStatusLabel"
            text=""
            wrapText="true"

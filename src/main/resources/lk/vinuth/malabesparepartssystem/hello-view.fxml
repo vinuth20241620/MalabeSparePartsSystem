@@ -16,7 +16,6 @@
             prefHeight="700.0"
             style="-fx-background-color: #f4f6f8;">
 
-    <!-- Top section containing the application title and navigation buttons. -->
     <top>
         <VBox spacing="12.0"
               style="-fx-background-color: #263238;">
@@ -28,13 +27,11 @@
                         left="20.0"/>
             </padding>
 
-            <!-- Main application heading. -->
             <Label text="Malabe Spare Parts System"
                    style="-fx-text-fill: white;
                           -fx-font-size: 26px;
                           -fx-font-weight: bold;"/>
 
-            <!-- Navigation buttons for the main coursework features. -->
             <HBox spacing="10.0">
 
                 <Button text="Inventory"
@@ -58,7 +55,6 @@
         </VBox>
     </top>
 
-    <!-- Centre section containing the inventory table and controls. -->
     <center>
         <VBox spacing="15.0">
 
@@ -69,12 +65,10 @@
                         left="20.0"/>
             </padding>
 
-            <!-- Section heading. -->
             <Label text="Inventory Management"
                    style="-fx-font-size: 21px;
                           -fx-font-weight: bold;"/>
 
-            <!-- Search area. -->
             <HBox spacing="10.0">
 
                 <TextField fx:id="searchField"
@@ -89,7 +83,6 @@
 
             </HBox>
 
-            <!-- Main inventory table. -->
             <TableView fx:id="inventoryTable"
                        VBox.vgrow="ALWAYS">
 
@@ -125,7 +118,6 @@
 
             </TableView>
 
-            <!-- Buttons used for inventory CRUD operations. -->
             <HBox spacing="10.0">
 
                 <Button text="Add Part"
@@ -148,7 +140,6 @@
 
             </HBox>
 
-            <!-- Summary information required by the coursework. -->
             <HBox spacing="30.0"
                   style="-fx-background-color: white;
                          -fx-padding: 12px;
@@ -168,7 +159,6 @@
 
             </HBox>
 
-            <!-- Status area used to show feedback to the user. -->
             <Label fx:id="statusLabel"
                    text="Application ready."
                    style="-fx-text-fill: #455a64;"/>
