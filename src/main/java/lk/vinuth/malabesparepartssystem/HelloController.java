@@ -26,6 +26,9 @@ import javafx.scene.Scene;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+
 /**
  * Controls the main inventory JavaFX screen.
  *
@@ -354,31 +357,81 @@ public class HelloController {
             exception.printStackTrace();
         }
     }
-
-
-
     /**
-     * Temporary handler for the Delete Part button.
-     *
-     * Actual deletion will be added after confirmation
-     * dialog support is implemented.
+     * Deletes the selected spare part after asking
+     * the user to confirm the action.
      */
     @FXML
     private void onDeletePartButtonClick() {
 
+        // Get the row currently selected in the table.
         SparePart selectedPart =
                 inventoryTable.getSelectionModel().getSelectedItem();
 
+        // Stop if the user did not select a row.
         if (selectedPart == null) {
             statusLabel.setText(
-                    "Select an inventory record before deleting."
+                    "Please select a spare part to delete."
             );
             return;
         }
 
-        statusLabel.setText(
-                "Selected for deletion: "
+        /*
+         * Create a confirmation dialog so a record
+         * cannot be deleted accidentally.
+         */
+        Alert confirmationAlert =
+                new Alert(Alert.AlertType.CONFIRMATION);
+
+        confirmationAlert.setTitle("Confirm Delete");
+        confirmationAlert.setHeaderText(
+                "Delete spare part "
                         + selectedPart.getPartCode()
+                        + "?"
+        );
+
+        confirmationAlert.setContentText(
+                "This action cannot be undone."
+        );
+
+        /*
+         * Display the dialog and wait for the user
+         * to choose OK or Cancel.
+         */
+        ButtonType selectedButton =
+                confirmationAlert.showAndWait()
+                        .orElse(ButtonType.CANCEL);
+
+        // Stop when the user presses Cancel.
+        if (selectedButton != ButtonType.OK) {
+            statusLabel.setText(
+                    "Delete operation cancelled."
+            );
+            return;
+        }
+
+        /*
+         * Ask InventoryService to remove the selected part.
+         */
+        boolean deleted =
+                inventoryService.deleteSparePart(
+                        selectedPart.getPartCode()
+                );
+
+        if (!deleted) {
+            statusLabel.setText(
+                    "The spare part could not be deleted."
+            );
+            return;
+        }
+
+        // Reload the table and summary values.
+        refreshInventoryTable();
+
+        statusLabel.setText(
+                "Spare part "
+                        + selectedPart.getPartCode()
+                        + " deleted successfully."
         );
     }
 
