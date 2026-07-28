@@ -64,6 +64,20 @@ public class PartFormController {
      */
     private Runnable onPartSaved;
 
+    /*
+     * Stores the original part code when the form
+     * is being used to update an existing part.
+     *
+     * It remains null when adding a new part.
+     */
+    private String originalPartCode;
+
+    /*
+     * True when this form is updating an existing part.
+     * False when this form is adding a new part.
+     */
+    private boolean updateMode;
+
     /**
      * Runs automatically when the form FXML is loaded.
      */
@@ -86,6 +100,29 @@ public class PartFormController {
             InventoryService inventoryService
     ) {
         this.inventoryService = inventoryService;
+    }
+
+    /**
+     * Loads an existing spare part into the form
+     * so the user can edit it.
+     */
+    public void setPartToEdit(SparePart part) {
+
+        updateMode = true;
+        originalPartCode = part.getPartCode();
+
+        partCodeField.setText(part.getPartCode());
+        partNameField.setText(part.getPartName());
+        brandField.setText(part.getBrand());
+        priceField.setText(String.valueOf(part.getPrice()));
+        quantityField.setText(String.valueOf(part.getQuantity()));
+        categoryField.setText(part.getCategory());
+        dateAddedPicker.setValue(part.getDateAdded());
+        imageFileNameField.setText(part.getImageFileName());
+
+        partCodeField.setDisable(true);
+
+
     }
 
     /**
@@ -206,31 +243,69 @@ public class PartFormController {
         );
 
         /*
-         * InventoryService returns false when another
-         * part already uses the same part code.
+         * Use different service operations depending on whether
+         * the form is adding or updating a spare part.
          */
-        boolean added =
-                inventoryService.addSparePart(newPart);
+        if (updateMode) {
 
-        if (!added) {
-            formStatusLabel.setText(
-                    "A spare part with this code already exists."
+            /*
+             * Update the existing object using its original code.
+             */
+            boolean updated = inventoryService.updateSparePart(
+                    originalPartCode,
+                    newPart
             );
-            return;
+
+            // Stop if the update was unsuccessful.
+            if (!updated) {
+                formStatusLabel.setText(
+                        "The spare part could not be updated."
+                );
+                return;
+            }
+
+            // Confirm the successful update.
+            formStatusLabel.setText(
+                    "Spare part updated successfully."
+            );
+
+        } else {
+
+            /*
+             * Add a completely new spare part.
+             */
+            boolean added =
+                    inventoryService.addSparePart(newPart);
+
+            // Reject duplicate part codes.
+            if (!added) {
+                formStatusLabel.setText(
+                        "A spare part with this code already exists."
+                );
+                return;
+            }
+
+            // Confirm the successful addition.
+            formStatusLabel.setText(
+                    "Spare part added successfully."
+            );
         }
 
-        // Show clear confirmation to the user.
-        formStatusLabel.setText(
-                "Spare part added successfully."
-        );
-
-        // Refresh the inventory table in the main window.
+        /*
+         * Refresh the inventory table after either
+         * a successful addition or a successful update.
+         */
         if (onPartSaved != null) {
             onPartSaved.run();
         }
 
-        // Clear the form after a successful save.
-        clearForm();
+        /*
+         * Clear the form only when adding a new part.
+         * During an update, keep the updated values visible.
+         */
+        if (!updateMode) {
+            clearForm();
+        }
     }
     /**
      * Converts category text into one consistent format.

@@ -155,6 +155,8 @@ public class HelloController {
 
         // Display the records inside the table.
         inventoryTable.setItems(tableData);
+        // Force JavaFX to redraw cells after an existing object is updated.
+        inventoryTable.refresh();
 
         // Update the total number of part records.
         totalPartsLabel.setText(
@@ -353,27 +355,7 @@ public class HelloController {
         }
     }
 
-    /**
-     * Temporary handler for the Update Part button.
-     */
-    @FXML
-    private void onUpdatePartButtonClick() {
 
-        SparePart selectedPart =
-                inventoryTable.getSelectionModel().getSelectedItem();
-
-        if (selectedPart == null) {
-            statusLabel.setText(
-                    "Select an inventory record before updating."
-            );
-            return;
-        }
-
-        statusLabel.setText(
-                "Selected for update: "
-                        + selectedPart.getPartCode()
-        );
-    }
 
     /**
      * Temporary handler for the Delete Part button.
@@ -413,4 +395,49 @@ public class HelloController {
                 "Inventory table refreshed."
         );
     }
+    /**
+     * Opens the selected spare part in the edit form.
+     */
+    @FXML
+    private void onUpdatePartButtonClick() {
+
+        // Get the selected row.
+        SparePart selectedPart = inventoryTable.getSelectionModel().getSelectedItem();
+
+        if (selectedPart == null) {
+            statusLabel.setText("Please select a spare part to update.");
+            return;
+        }
+
+        try {
+
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("part-form.fxml"));
+
+            Parent root = loader.load();
+
+            PartFormController controller = loader.getController();
+
+            controller.setInventoryService(inventoryService);
+
+            controller.setOnPartSaved(this::refreshInventoryTable);
+
+            controller.setPartToEdit(selectedPart);
+
+            Stage stage = new Stage();
+            stage.setTitle("Update Spare Part");
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.showAndWait();
+
+            refreshInventoryTable();
+
+        } catch (IOException exception) {
+
+            exception.printStackTrace();
+
+            statusLabel.setText("Could not open the Update Part form.");
+        }
+    }
+
 }
