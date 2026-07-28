@@ -521,5 +521,24 @@ public class HelloController {
                         + " low stock part(s) found."
         );
     }
+    @FXML
+    private void onDealersButtonClick() {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        alert.setTitle("Dealers");
+
+        alert.setHeaderText("Registered Dealers");
+
+        alert.setContentText(
+                "1. Bajaj Auto Parts\n" +
+                        "2. TVS Spare Centre\n" +
+                        "3. Piaggio Lanka\n" +
+                        "4. NGK Distributors\n" +
+                        "5. Local Parts Suppliers"
+        );
+
+        alert.showAndWait();
+    }
 
 }

@@ -42,7 +42,8 @@
                                -fx-text-fill: white;
                                -fx-font-weight: bold;"/>
 
-                <Button text="Dealers"/>
+                <Button text="Dealers"
+                        onAction="#onDealersButtonClick"/>
 
                 <Button text="Low Stock"
                         onAction="#onLowStockButtonClick"/>
