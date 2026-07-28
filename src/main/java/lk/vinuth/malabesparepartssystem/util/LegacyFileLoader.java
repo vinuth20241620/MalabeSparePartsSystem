@@ -5,9 +5,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import lk.vinuth.malabesparepartssystem.model.Dealer;
 import lk.vinuth.malabesparepartssystem.model.SparePart;
@@ -98,7 +100,24 @@ public class LegacyFileLoader {
              * We do not replace every colon because a colon
              * could appear inside other text in future files.
              */
-            String cleanedLine = line
+            /*
+             * Protect dates such as "Oct 15, 2023".
+             *
+             * The comma inside the date must not be treated as a
+             * separator between inventory fields.
+             *
+             * Example:
+             * "Oct 15, 2023" becomes "Oct 15 2023".
+             */
+            String cleanedLine = line.replaceAll(
+                    "([A-Za-z]{3})\\s+(\\d{1,2}),\\s*(\\d{4})",
+                    "$1 $2 $3"
+            );
+
+            /*
+             * Convert all supplied field separators into commas.
+             */
+            cleanedLine = cleanedLine
                     .replace('|', ',')
                     .replace(';', ',')
                     .replace(':', ',');
@@ -115,20 +134,6 @@ public class LegacyFileLoader {
              * That produces nine fields instead of eight.
              * Join the two date pieces back together.
              */
-            if (fields.length == 9) {
-                String[] correctedFields = new String[8];
-
-                correctedFields[0] = fields[0];
-                correctedFields[1] = fields[1];
-                correctedFields[2] = fields[2];
-                correctedFields[3] = fields[3];
-                correctedFields[4] = fields[4];
-                correctedFields[5] = fields[5];
-                correctedFields[6] = fields[6] + ", " + fields[7];
-                correctedFields[7] = fields[8];
-
-                fields = correctedFields;
-            }
 
             // A valid inventory record must contain at least seven fields.
             if (fields.length < 7) {
@@ -157,7 +162,14 @@ public class LegacyFileLoader {
              * "Rs. 4500.00" becomes "4500.00"
              * "Rs850" becomes "850"
              */
+            /*
+             * Remove the Rs or Rs. currency prefix first.
+             *
+             * This prevents the full stop in "Rs." from being
+             * mistaken for the decimal point of the price.
+             */
             String cleanedPrice = fields[3]
+                    .replaceAll("(?i)Rs\\.?", "")
                     .replaceAll("[^0-9.]", "");
 
             double price = Double.parseDouble(cleanedPrice);
@@ -253,11 +265,36 @@ public class LegacyFileLoader {
 
         // List of supported date formats from the legacy file.
         DateTimeFormatter[] formats = {
-                DateTimeFormatter.ofPattern("yyyy-MM-dd"),
-                DateTimeFormatter.ofPattern("dd/MM/yyyy"),
-                DateTimeFormatter.ofPattern("dd-MM-yyyy"),
-                DateTimeFormatter.ofPattern("MMM d, yyyy"),
-                DateTimeFormatter.ofPattern("yyyy/MM/dd")
+
+                // Numeric year-month-day format, for example 2023-10-12.
+                DateTimeFormatter.ofPattern("uuuu-MM-dd"),
+
+                // Day/month/year format, for example 12/05/2023.
+                DateTimeFormatter.ofPattern("dd/MM/uuuu"),
+
+                // Day-month-year format, for example 01-02-2024.
+                DateTimeFormatter.ofPattern("dd-MM-uuuu"),
+
+                /*
+                 * English month-name format with a comma,
+                 * for example Oct 15, 2023.
+                 */
+                new DateTimeFormatterBuilder()
+                        .parseCaseInsensitive()
+                        .appendPattern("MMM d uuuu")
+                        .toFormatter(Locale.ENGLISH),
+
+                /*
+                 * English month-name format with hyphens,
+                 * for example 15-Aug-2023.
+                 */
+                new DateTimeFormatterBuilder()
+                        .parseCaseInsensitive()
+                        .appendPattern("dd-MMM-uuuu")
+                        .toFormatter(Locale.ENGLISH),
+
+                // Alternative year/month/day format.
+                DateTimeFormatter.ofPattern("uuuu/MM/dd")
         };
 
         // Try each format until one works.
@@ -325,36 +362,47 @@ public class LegacyFileLoader {
         return dealers;
     }
     /**
-     * Converts one dealer text line into a Dealer object.
+     * Converts one line from dealers_legacy.txt
+     * into a Dealer object.
      *
-     * The legacy dealer file may use different separators,
-     * so the line is first changed into one standard format.
+     * The supplied dealer file contains four fields:
+     * dealer ID, dealer name, phone number and location.
      *
-     * @param line one line from dealers_legacy.txt
+     * @param line one line from the dealer legacy file
      * @return a Dealer object, or null if the line is invalid
      */
     private Dealer parseDealerLine(String line) {
 
         try {
             /*
-             * Replace pipe and semicolon separators with commas.
+             * Convert the different separators used in the
+             * legacy file into commas.
              */
             String cleanedLine = line
                     .replace('|', ',')
                     .replace(';', ',');
 
             /*
-             * Split the line while keeping empty fields.
+             * Split the line while keeping empty values.
+             *
+             * Keeping empty values is important because some
+             * dealers do not have a phone number.
              */
             String[] fields = cleanedLine.split(",", -1);
 
             /*
-             * A valid dealer record must contain at least
-             * five fields:
-             * ID, name, phone, email and address.
+             * Every supplied dealer record should contain:
+             *
+             * 0 = dealer ID
+             * 1 = dealer name
+             * 2 = phone number
+             * 3 = location
              */
-            if (fields.length < 5) {
-                System.out.println("Skipped invalid dealer line: " + line);
+            if (fields.length < 4) {
+                System.out.println(
+                        "Skipped invalid dealer line: " + line
+                );
+
                 return null;
             }
 
@@ -363,30 +411,23 @@ public class LegacyFileLoader {
                 fields[index] = fields[index].trim();
             }
 
-            // Read each dealer value.
             String dealerId = fields[0];
             String dealerName = fields[1];
             String phoneNumber = fields[2];
-            String email = fields[3];
+            String location = fields[3];
 
             /*
-             * If the address itself contains commas,
-             * join all remaining fields back together.
+             * The supplied file does not contain an email field.
+             * Therefore, an empty email is stored.
              */
-            StringBuilder addressBuilder = new StringBuilder();
+            String email = "";
 
-            for (int index = 4; index < fields.length; index++) {
+            /*
+             * The current Dealer model calls this field address.
+             * We store the supplied dealer location in that field.
+             */
+            String address = location;
 
-                if (index > 4) {
-                    addressBuilder.append(", ");
-                }
-
-                addressBuilder.append(fields[index]);
-            }
-
-            String address = addressBuilder.toString();
-
-            // Create and return the Dealer object.
             return new Dealer(
                     dealerId,
                     dealerName,
@@ -397,10 +438,6 @@ public class LegacyFileLoader {
 
         } catch (Exception exception) {
 
-            /*
-             * Skip any unexpected malformed dealer record
-             * instead of stopping the whole application.
-             */
             System.out.println(
                     "Skipped dealer line: " + line
             );

@@ -1,14 +1,349 @@
 package lk.vinuth.malabesparepartssystem;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 
+import lk.vinuth.malabesparepartssystem.model.SparePart;
+import lk.vinuth.malabesparepartssystem.service.ApplicationDataService;
+import lk.vinuth.malabesparepartssystem.service.InventoryService;
+
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * Controls the main inventory JavaFX screen.
+ *
+ * This class connects the controls in hello-view.fxml
+ * with the inventory data and application services.
+ */
 public class HelloController {
+
+    // Search text entered by the user.
     @FXML
-    private Label welcomeText;
+    private TextField searchField;
+
+    // Table used to display every spare part.
+    @FXML
+    private TableView<SparePart> inventoryTable;
+
+    // Individual columns inside the inventory table.
+    @FXML
+    private TableColumn<SparePart, String> partCodeColumn;
 
     @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+    private TableColumn<SparePart, String> partNameColumn;
+
+    @FXML
+    private TableColumn<SparePart, String> brandColumn;
+
+    @FXML
+    private TableColumn<SparePart, Double> priceColumn;
+
+    @FXML
+    private TableColumn<SparePart, Integer> quantityColumn;
+
+    @FXML
+    private TableColumn<SparePart, String> categoryColumn;
+
+    @FXML
+    private TableColumn<SparePart, LocalDate> dateAddedColumn;
+
+    // Labels displaying inventory totals and user feedback.
+    @FXML
+    private Label totalPartsLabel;
+
+    @FXML
+    private Label totalValueLabel;
+
+    @FXML
+    private Label statusLabel;
+
+    // Central service used to load the legacy files.
+    private ApplicationDataService applicationDataService;
+
+    // Service used to access inventory operations.
+    private InventoryService inventoryService;
+
+    /**
+     * Runs automatically after the FXML file has loaded.
+     */
+    @FXML
+    private void initialize() {
+
+        // Create the central application data service.
+        applicationDataService = new ApplicationDataService();
+
+        // Load inventory and dealer records from the text files.
+        applicationDataService.loadLegacyData();
+
+        // Get the inventory service containing the loaded parts.
+        inventoryService = applicationDataService.getInventoryService();
+
+        // Connect each table column to a SparePart property.
+        configureTableColumns();
+
+        // Display the loaded inventory records.
+        refreshInventoryTable();
+
+        // Show confirmation to the user.
+        statusLabel.setText("Legacy inventory loaded successfully.");
+    }
+    /**
+     * Connects each table column to the matching
+     * getter method inside the SparePart class.
+     */
+    private void configureTableColumns() {
+
+        partCodeColumn.setCellValueFactory(
+                new PropertyValueFactory<>("partCode")
+        );
+
+        partNameColumn.setCellValueFactory(
+                new PropertyValueFactory<>("partName")
+        );
+
+        brandColumn.setCellValueFactory(
+                new PropertyValueFactory<>("brand")
+        );
+
+        priceColumn.setCellValueFactory(
+                new PropertyValueFactory<>("price")
+        );
+
+        quantityColumn.setCellValueFactory(
+                new PropertyValueFactory<>("quantity")
+        );
+
+        categoryColumn.setCellValueFactory(
+                new PropertyValueFactory<>("category")
+        );
+
+        dateAddedColumn.setCellValueFactory(
+                new PropertyValueFactory<>("dateAdded")
+        );
+    }
+
+    /**
+     * Reloads all inventory records into the table
+     * and refreshes the summary labels.
+     */
+    private void refreshInventoryTable() {
+
+        // Retrieve all spare parts from the service.
+        List<SparePart> spareParts =
+                inventoryService.getAllSpareParts();
+
+        // Convert the ordinary List into a JavaFX ObservableList.
+        ObservableList<SparePart> tableData =
+                FXCollections.observableArrayList(spareParts);
+
+        // Display the records inside the table.
+        inventoryTable.setItems(tableData);
+
+        // Update the total number of part records.
+        totalPartsLabel.setText(
+                String.valueOf(inventoryService.getTotalParts())
+        );
+
+        // Update the complete inventory monetary value.
+        totalValueLabel.setText(
+                String.format(
+                        "Rs. %.2f",
+                        inventoryService.calculateTotalInventoryValue()
+                )
+        );
+    }
+
+    /**
+     * Searches the inventory using the text entered
+     * in the search field.
+     *
+     * The search manually checks the part code,
+     * part name, brand and category.
+     */
+    @FXML
+    private void onSearchButtonClick() {
+
+        // Read and clean the user's search text.
+        String keyword = searchField.getText().trim();
+
+        // Display all records when no keyword was entered.
+        if (keyword.isEmpty()) {
+            refreshInventoryTable();
+            statusLabel.setText(
+                    "Enter a code, name, brand or category to search."
+            );
+            return;
+        }
+
+        // Convert the keyword to lowercase for case-insensitive searching.
+        String lowerKeyword = keyword.toLowerCase();
+
+        // Create an empty list for matching results.
+        ObservableList<SparePart> matchingParts =
+                FXCollections.observableArrayList();
+
+        // Check every spare part manually.
+        for (SparePart sparePart
+                : inventoryService.getAllSpareParts()) {
+
+            boolean codeMatches =
+                    containsIgnoreCase(
+                            sparePart.getPartCode(),
+                            lowerKeyword
+                    );
+
+            boolean nameMatches =
+                    containsIgnoreCase(
+                            sparePart.getPartName(),
+                            lowerKeyword
+                    );
+
+            boolean brandMatches =
+                    containsIgnoreCase(
+                            sparePart.getBrand(),
+                            lowerKeyword
+                    );
+
+            boolean categoryMatches =
+                    containsIgnoreCase(
+                            sparePart.getCategory(),
+                            lowerKeyword
+                    );
+
+            // Add the part when at least one field matches.
+            if (codeMatches
+                    || nameMatches
+                    || brandMatches
+                    || categoryMatches) {
+
+                matchingParts.add(sparePart);
+            }
+        }
+
+        // Display only the matching records.
+        inventoryTable.setItems(matchingParts);
+
+        // Provide clear feedback to the user.
+        statusLabel.setText(
+                matchingParts.size()
+                        + " matching inventory record(s) found."
+        );
+    }
+
+    /**
+     * Safely checks whether text contains a keyword,
+     * without considering uppercase and lowercase letters.
+     *
+     * @param text original field value
+     * @param lowerKeyword lowercase search keyword
+     * @return true if the field contains the keyword
+     */
+    private boolean containsIgnoreCase(
+            String text,
+            String lowerKeyword
+    ) {
+
+        // A missing optional field cannot match.
+        if (text == null) {
+            return false;
+        }
+
+        return text.toLowerCase().contains(lowerKeyword);
+    }
+
+    /**
+     * Clears the search box and displays all records again.
+     */
+    @FXML
+    private void onClearSearchButtonClick() {
+
+        searchField.clear();
+        refreshInventoryTable();
+
+        statusLabel.setText(
+                "Search cleared. All inventory records are displayed."
+        );
+    }
+
+    /**
+     * Temporary handler for the Add Part button.
+     *
+     * The complete add-part form will be implemented
+     * in the next development step.
+     */
+    @FXML
+    private void onAddPartButtonClick() {
+
+        statusLabel.setText(
+                "Add Part form will be implemented next."
+        );
+    }
+
+    /**
+     * Temporary handler for the Update Part button.
+     */
+    @FXML
+    private void onUpdatePartButtonClick() {
+
+        SparePart selectedPart =
+                inventoryTable.getSelectionModel().getSelectedItem();
+
+        if (selectedPart == null) {
+            statusLabel.setText(
+                    "Select an inventory record before updating."
+            );
+            return;
+        }
+
+        statusLabel.setText(
+                "Selected for update: "
+                        + selectedPart.getPartCode()
+        );
+    }
+
+    /**
+     * Temporary handler for the Delete Part button.
+     *
+     * Actual deletion will be added after confirmation
+     * dialog support is implemented.
+     */
+    @FXML
+    private void onDeletePartButtonClick() {
+
+        SparePart selectedPart =
+                inventoryTable.getSelectionModel().getSelectedItem();
+
+        if (selectedPart == null) {
+            statusLabel.setText(
+                    "Select an inventory record before deleting."
+            );
+            return;
+        }
+
+        statusLabel.setText(
+                "Selected for deletion: "
+                        + selectedPart.getPartCode()
+        );
+    }
+
+    /**
+     * Reloads the complete inventory table.
+     */
+    @FXML
+    private void onRefreshButtonClick() {
+
+        searchField.clear();
+        refreshInventoryTable();
+
+        statusLabel.setText(
+                "Inventory table refreshed."
+        );
     }
 }
