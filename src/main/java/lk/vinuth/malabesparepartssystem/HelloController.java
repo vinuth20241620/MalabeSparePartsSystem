@@ -540,5 +540,21 @@ public class HelloController {
 
         alert.showAndWait();
     }
+    @FXML
+    private void onPointOfSaleButtonClick() {
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+
+        alert.setTitle("Point of Sale");
+
+        alert.setHeaderText("Point of Sale");
+
+        alert.setContentText(
+                "Point of Sale feature\n\n" +
+                        "This feature will be implemented in the next version."
+        );
+
+        alert.showAndWait();
+    }
 
 }

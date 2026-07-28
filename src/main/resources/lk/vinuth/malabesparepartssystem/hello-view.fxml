@@ -48,7 +48,8 @@
                 <Button text="Low Stock"
                         onAction="#onLowStockButtonClick"/>
 
-                <Button text="Point of Sale"/>
+                <Button text="Point of Sale"
+                        onAction="#onPointOfSaleButtonClick"/>
 
             </HBox>
         </VBox>
