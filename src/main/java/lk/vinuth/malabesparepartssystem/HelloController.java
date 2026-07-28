@@ -639,5 +639,118 @@ public class HelloController {
             exception.printStackTrace();
         }
     }
+    /**
+     * Calculates and displays a summary report
+     * using the current inventory records.
+     */
+    @FXML
+    private void onReportsButtonClick() {
+
+        // Retrieve every spare part currently stored.
+        List<SparePart> spareParts =
+                inventoryService.getAllSpareParts();
+
+        // Stop safely if the inventory is empty.
+        if (spareParts.isEmpty()) {
+
+            Alert emptyAlert =
+                    new Alert(Alert.AlertType.INFORMATION);
+
+            emptyAlert.setTitle("Inventory Report");
+            emptyAlert.setHeaderText("No inventory records");
+            emptyAlert.setContentText(
+                    "There are no spare parts available for reporting."
+            );
+
+            emptyAlert.showAndWait();
+            return;
+        }
+
+        int lowStockCount = 0;
+        int outOfStockCount = 0;
+
+        double totalPrice = 0.0;
+
+        // Start with the first part as the most expensive.
+        SparePart mostExpensivePart = spareParts.get(0);
+
+        /*
+         * Manually visit every part and calculate
+         * the required report information.
+         */
+        for (SparePart sparePart : spareParts) {
+
+            // Count quantities of five or below as low stock.
+            if (sparePart.getQuantity() <= 5) {
+                lowStockCount++;
+            }
+
+            // Count records with no remaining stock.
+            if (sparePart.getQuantity() == 0) {
+                outOfStockCount++;
+            }
+
+            // Add the unit price for average-price calculation.
+            totalPrice += sparePart.getPrice();
+
+            // Check whether this is the most expensive part.
+            if (sparePart.getPrice()
+                    > mostExpensivePart.getPrice()) {
+
+                mostExpensivePart = sparePart;
+            }
+        }
+
+        // Calculate the average unit price.
+        double averagePrice =
+                totalPrice / spareParts.size();
+
+        // Get the complete monetary value of all stock.
+        double inventoryValue =
+                inventoryService.calculateTotalInventoryValue();
+
+        /*
+         * Build the report text shown in the dialog.
+         */
+        String reportText =
+                "Total Parts: "
+                        + spareParts.size()
+                        + "\n\n"
+                        + "Total Inventory Value: Rs. "
+                        + String.format("%.2f", inventoryValue)
+                        + "\n\n"
+                        + "Low Stock Items: "
+                        + lowStockCount
+                        + "\n\n"
+                        + "Out of Stock Items: "
+                        + outOfStockCount
+                        + "\n\n"
+                        + "Most Expensive Part: "
+                        + mostExpensivePart.getPartName()
+                        + " ("
+                        + mostExpensivePart.getPartCode()
+                        + ")"
+                        + "\n"
+                        + "Unit Price: Rs. "
+                        + String.format(
+                        "%.2f",
+                        mostExpensivePart.getPrice()
+                )
+                        + "\n\n"
+                        + "Average Unit Price: Rs. "
+                        + String.format("%.2f", averagePrice);
+
+        // Display the completed report.
+        Alert reportAlert =
+                new Alert(Alert.AlertType.INFORMATION);
+
+        reportAlert.setTitle("Inventory Report");
+        reportAlert.setHeaderText(
+                "Malabe Spare Parts Inventory Summary"
+        );
+
+        reportAlert.setContentText(reportText);
+        reportAlert.showAndWait();
+    }
 
 }

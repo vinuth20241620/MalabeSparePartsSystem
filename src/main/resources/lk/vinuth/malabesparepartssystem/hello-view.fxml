@@ -51,6 +51,9 @@
                 <Button text="Point of Sale"
                         onAction="#onPointOfSaleButtonClick"/>
 
+                <Button text="Reports"
+                        onAction="#onReportsButtonClick"/>
+
             </HBox>
         </VBox>
     </top>
