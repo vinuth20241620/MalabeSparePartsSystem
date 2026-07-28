@@ -11,6 +11,9 @@ module lk.vinuth.malabesparepartssystem {
      */
     opens lk.vinuth.malabesparepartssystem to javafx.fxml;
 
+    // Allows JavaFX to access PartFormController.
+    opens lk.vinuth.malabesparepartssystem.controller to javafx.fxml;
+
     /*
      * Opens the model package to javafx.base.
      *
@@ -21,6 +24,8 @@ module lk.vinuth.malabesparepartssystem {
 
     // Makes the main package accessible to other modules.
     exports lk.vinuth.malabesparepartssystem;
+
+    exports lk.vinuth.malabesparepartssystem.controller;
 
     // Exports the model package for normal application access.
     exports lk.vinuth.malabesparepartssystem.model;

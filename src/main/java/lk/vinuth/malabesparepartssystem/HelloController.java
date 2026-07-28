@@ -12,9 +12,19 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import lk.vinuth.malabesparepartssystem.model.SparePart;
 import lk.vinuth.malabesparepartssystem.service.ApplicationDataService;
 import lk.vinuth.malabesparepartssystem.service.InventoryService;
+import lk.vinuth.malabesparepartssystem.controller.PartFormController;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.io.IOException;
+
+import javafx.fxml.FXMLLoader;
+
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  * Controls the main inventory JavaFX screen.
@@ -273,17 +283,74 @@ public class HelloController {
     }
 
     /**
-     * Temporary handler for the Add Part button.
-     *
-     * The complete add-part form will be implemented
-     * in the next development step.
+     * Opens the Add Part form in a separate window.
      */
     @FXML
     private void onAddPartButtonClick() {
 
-        statusLabel.setText(
-                "Add Part form will be implemented next."
-        );
+        try {
+            /*
+             * Load the Add Part form from the FXML file.
+             */
+            FXMLLoader loader = new FXMLLoader(
+                    HelloApplication.class.getResource(
+                            "part-form.fxml"
+                    )
+            );
+
+            Parent formRoot = loader.load();
+
+            /*
+             * Get the controller created for part-form.fxml.
+             */
+            PartFormController formController =
+                    loader.getController();
+
+            /*
+             * Give the form access to the same inventory service
+             * used by the main screen.
+             */
+            formController.setInventoryService(
+                    inventoryService
+            );
+
+            /*
+             * Refresh the main table after a part is added.
+             */
+            formController.setOnPartSaved(() -> {
+
+                refreshInventoryTable();
+
+                statusLabel.setText(
+                        "A new spare part was added successfully."
+                );
+            });
+
+            /*
+             * Create a new window for the form.
+             */
+            Stage formStage = new Stage();
+
+            formStage.setTitle("Add Spare Part");
+            formStage.setScene(new Scene(formRoot));
+
+            /*
+             * Prevent the user from using the main window
+             * until this form is closed.
+             */
+            formStage.initModality(Modality.APPLICATION_MODAL);
+
+            formStage.setResizable(false);
+            formStage.showAndWait();
+
+        } catch (IOException exception) {
+
+            statusLabel.setText(
+                    "Could not open the Add Part form."
+            );
+
+            exception.printStackTrace();
+        }
     }
 
     /**

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="lk.vinuth.malabesparepartssystem.controller.PartFormController"
+      spacing="15.0"
+      prefWidth="520.0"
+      prefHeight="610.0"
+      style="-fx-background-color: #f4f6f8;">
+
+    <padding>
+        <Insets top="20.0"
+                right="20.0"
+                bottom="20.0"
+                left="20.0"/>
+    </padding>
+
+    <!-- Main heading displayed at the top of the form. -->
+    <Label text="Add New Spare Part"
+           style="-fx-font-size: 23px;
+                  -fx-font-weight: bold;
+                  -fx-text-fill: #263238;"/>
+
+    <!-- Short explanation for the user. -->
+    <Label text="Enter the spare-part information below. Fields marked with * are required."
+           wrapText="true"
+           style="-fx-text-fill: #546e7a;"/>
+
+    <!-- GridPane keeps labels and input fields neatly aligned. -->
+    <GridPane hgap="15.0"
+              vgap="14.0">
+
+        <columnConstraints>
+            <!-- First column contains the field labels. -->
+            <ColumnConstraints minWidth="135.0"
+                               prefWidth="135.0"/>
+
+            <!-- Second column contains the input controls. -->
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <!-- Part code field. -->
+        <Label text="Part Code *"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="0"/>
+
+        <TextField fx:id="partCodeField"
+                   promptText="Example: P011"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="0"/>
+
+        <!-- Part name field. -->
+        <Label text="Part Name *"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="1"/>
+
+        <TextField fx:id="partNameField"
+                   promptText="Enter the part name"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="1"/>
+
+        <!-- Optional brand field. -->
+        <Label text="Brand"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="2"/>
+
+        <TextField fx:id="brandField"
+                   promptText="Enter the manufacturer or brand"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="2"/>
+
+        <!-- Price field. -->
+        <Label text="Price *"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="3"/>
+
+        <TextField fx:id="priceField"
+                   promptText="Example: 2500.00"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="3"/>
+
+        <!-- Quantity field. -->
+        <Label text="Quantity *"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="4"/>
+
+        <TextField fx:id="quantityField"
+                   promptText="Example: 10"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="4"/>
+
+        <!-- Category field. -->
+        <Label text="Category *"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="5"/>
+
+        <TextField fx:id="categoryField"
+                   promptText="Engine, Electrical, Brakes or Bodywork"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="5"/>
+
+        <!-- Date field. -->
+        <Label text="Date Added *"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="6"/>
+
+        <DatePicker fx:id="dateAddedPicker"
+                    maxWidth="Infinity"
+                    GridPane.columnIndex="1"
+                    GridPane.rowIndex="6"/>
+
+        <!-- Optional image filename field. -->
+        <Label text="Image Filename"
+               GridPane.columnIndex="0"
+               GridPane.rowIndex="7"/>
+
+        <TextField fx:id="imageFileNameField"
+                   promptText="Example: piston.jpg"
+                   GridPane.columnIndex="1"
+                   GridPane.rowIndex="7"/>
+
+        <!-- Buttons used to save or clear the form. -->
+        <HBox spacing="10.0"
+              GridPane.columnIndex="1"
+              GridPane.rowIndex="8">
+
+            <Button text="Save Part"
+                    onAction="#onSaveButtonClick"
+                    style="-fx-background-color: #2e7d32;
+                           -fx-text-fill: white;
+                           -fx-font-weight: bold;"/>
+
+            <Button text="Clear"
+                    onAction="#onClearButtonClick"/>
+        </HBox>
+
+    </GridPane>
+
+    <!-- Displays validation errors and success messages. -->
+    <Label fx:id="formStatusLabel"
+           text=""
+           wrapText="true"
+           style="-fx-text-fill: #c62828;
+                  -fx-font-weight: bold;"/>
+
+</VBox>
